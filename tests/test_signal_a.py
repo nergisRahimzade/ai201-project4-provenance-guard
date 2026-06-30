@@ -39,6 +39,13 @@ We celebrate love today. We celebrate joy today. We celebrate friendship today.
 We thank our friends today. We thank our family today. We thank everyone here today.
 """
 
+TYPICAL_AI_ESSAY = """
+In today's rapidly evolving digital landscape, organizations must adapt to unprecedented changes in technology.
+Furthermore, the integration of artificial intelligence presents both opportunities and challenges for businesses.
+Moreover, stakeholders should consider ethical implications while embracing innovation across all departments.
+Ultimately, success depends on balancing efficiency with responsible implementation throughout the organization.
+"""
+
 
 def test_technical_report_scores_more_ai_like():
     """False positive trace: plain technical writing scores AI-like on Signal 1."""
@@ -72,11 +79,19 @@ def test_formulaic_genre_scores_ai_like():
     expressive_score = compute_signal_a(EXPRESSIVE_HUMAN)
     assert formulaic_score > expressive_score
 
+def test_typical_ai_essay_scores_higher_than_expressive_human():
+    """Polished AI prose should not score as strongly human on Signal 1."""
+    ai_score = compute_signal_a(TYPICAL_AI_ESSAY)
+    human_score = compute_signal_a(EXPRESSIVE_HUMAN)
+    assert ai_score > human_score
+    assert ai_score > 0.45
+
+
 def test_my_custom_text_block():
     text = """
-    Artificial intelligence represents a transformative paradigm shift in modern society. 
-    It is important to note that while the benefits of AI are numerous, it is equally 
-    essential to consider the ethical implications. Furthermore, stakeholders across 
+    Artificial intelligence represents a transformative paradigm shift in modern society.
+    It is important to note that while the benefits of AI are numerous, it is equally
+    essential to consider the ethical implications. Furthermore, stakeholders across
     various sectors must collaborate to ensure responsible deployment.
     """
     score_a = compute_signal_a(text)
@@ -85,4 +100,5 @@ def test_my_custom_text_block():
     label = derive_transparency_label(confidence)
 
     print(score_a, score_b, confidence, label)
+    assert score_a > 0.45
     assert 0.0 <= score_a <= 1.0
