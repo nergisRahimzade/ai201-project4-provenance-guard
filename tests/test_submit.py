@@ -1,7 +1,6 @@
 import pytest
 
-from provenance_guard.app import create_app
-from provenance_guard.audit_log import clear, get_decision_by_content_id, get_entries
+from provenance_guard.audit_log import get_decision_by_content_id, get_entries
 from provenance_guard.classification import (
     ALL_TRANSPARENCY_LABELS,
     CLASSIFIED_STATUS,
@@ -10,17 +9,6 @@ from provenance_guard.classification import (
 )
 from provenance_guard.signals.signal_a import compute_signal_a
 from provenance_guard.signals.signal_b import compute_signal_b
-
-
-@pytest.fixture
-def client():
-    clear()
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
-    clear()
-
 
 SAMPLE_TEXT = (
     "The system module processes system data and the system module validates system data. "

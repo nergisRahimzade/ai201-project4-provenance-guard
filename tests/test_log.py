@@ -1,19 +1,4 @@
-import pytest
-
-from provenance_guard.app import create_app
-from provenance_guard.audit_log import clear
 from provenance_guard.classification import ALL_TRANSPARENCY_LABELS
-
-
-@pytest.fixture
-def client():
-    clear()
-    app = create_app()
-    app.config["TESTING"] = True
-    with app.test_client() as client:
-        yield client
-    clear()
-
 
 TEXT_ONE = (
     "The system module processes system data and the system module validates system data. "

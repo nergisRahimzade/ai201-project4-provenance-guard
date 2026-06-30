@@ -3,6 +3,7 @@ import uuid
 from flask import Blueprint, jsonify, request
 
 from provenance_guard.audit_log import append_decision
+from provenance_guard.content_store import register_content
 from provenance_guard.classification import (
     CLASSIFIED_STATUS,
     compute_confidence,
@@ -59,5 +60,6 @@ def submit():
         timestamp=timestamp,
     )
     append_decision(response)
+    register_content(response)
 
     return jsonify(response), 200

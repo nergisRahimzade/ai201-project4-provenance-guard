@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+from provenance_guard.routes.appeal import appeal_bp
 from provenance_guard.routes.log import log_bp
 from provenance_guard.routes.submit import submit_bp
 
@@ -7,6 +8,7 @@ from provenance_guard.routes.submit import submit_bp
 def create_app() -> Flask:
     app = Flask(__name__)
     app.register_blueprint(submit_bp)
+    app.register_blueprint(appeal_bp)
     app.register_blueprint(log_bp)
 
     @app.get("/")
@@ -29,6 +31,13 @@ def create_app() -> Flask:
                             "Likely human-written | Clearly human-written"
                         ),
                         "status": "classified",
+                    },
+                },
+                "POST /appeal": {
+                    "body": {"content_id": "string", "creator_reasoning": "string"},
+                    "response": {
+                        "appeal_id": "string",
+                        "status_update": "under review",
                     },
                 },
                 "GET /log": {

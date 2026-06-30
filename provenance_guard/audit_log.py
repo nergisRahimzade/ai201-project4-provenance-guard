@@ -10,6 +10,28 @@ def append_decision(record: dict) -> None:
     })
 
 
+def append_appeal(
+    *,
+    appeal_id: str,
+    content_id: str,
+    timestamp: str,
+    status: str,
+    transparency_label: str,
+    creator_reasoning: str,
+    original_decision: dict,
+) -> None:
+    _log.append({
+        "record_type": "appeal",
+        "appeal_id": appeal_id,
+        "content_id": content_id,
+        "timestamp": timestamp,
+        "status": status,
+        "transparency_label": transparency_label,
+        "creator_reasoning": creator_reasoning,
+        "original_decision": dict(original_decision),
+    })
+
+
 def get_log() -> list[dict]:
     return list(_log)
 

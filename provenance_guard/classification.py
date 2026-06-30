@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 
 CLASSIFIED_STATUS = "classified"
+UNDER_REVIEW_STATUS = "under review"
+UNDER_REVIEW_LABEL = "Under Review"
 
 LABEL_CLEARLY_AI = "Clearly AI-generated"
 LABEL_LIKELY_AI = "Likely AI-generated"
