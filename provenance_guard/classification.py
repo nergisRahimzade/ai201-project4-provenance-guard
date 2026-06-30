@@ -19,12 +19,19 @@ ALL_TRANSPARENCY_LABELS = {
 }
 
 
+SIGNAL_A_WEIGHT = 0.3
+SIGNAL_B_WEIGHT = 0.7
+
+
 def current_timestamp() -> str:
     return datetime.now(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def compute_confidence(score_signal_a: float, score_signal_b: float) -> float:
-    return round((score_signal_a + score_signal_b) / 2, 2)
+    return round(
+        SIGNAL_A_WEIGHT * score_signal_a + SIGNAL_B_WEIGHT * score_signal_b,
+        2,
+    )
 
 
 def derive_transparency_label(confidence_score: float) -> str:

@@ -56,20 +56,19 @@ If a creator disputes the result, they call `POST /appeal` with their `content_i
 #### Confidence Score
 
 **Output**
-- `confidence_score`: ( `score_signalA` + `score_signal_B` ) / 2
+- `confidence_score`: `0.3 × score_signal_A + 0.7 × score_signal_B`
 
-
-- For both signals, a score of 1.0 represents the most AI-typical value observed, and 0.0 represents the most human-typical value observed, so the two scores are directly comparable and averageable.
+- For both signals, a score of 1.0 represents the most AI-typical value observed, and 0.0 represents the most human-typical value observed, so the two scores are directly comparable and combinable into a single weighted score.
 
 ---
 
 ## Uncertainty Representation
 
-A confidence score is not a measure of certainty that AI wrote the text — it's a measure of how strongly, and how consistently, the two signals agree with each other. A score of 0.6 doesn't mean "60% chance this is AI." It means the combined evidence leans mildly toward AI-generated, but not strongly enough to be conclusive, and a reader should treat the result as an open question rather than a verdict.
+A confidence score is not a measure of certainty that AI wrote the text — it's a measure of how strongly the combined signal evidence leans toward AI-generated or human-written writing. A score of 0.6 doesn't mean "60% chance this is AI." It means the combined evidence leans mildly toward AI-generated, but not strongly enough to be conclusive, and a reader should treat the result as an open question rather than a verdict.
 
-**Why a simple average**
+**Why signal B is weighted more heavily**
 
-`confidence_score = (score_signal_A + score_signal_B) / 2` was chosen over a weighted combination because neither signal has been validated against a labeled dataset yet — assigning one signal more weight than the other would be an unjustified guess rather than an evidence-based decision. An unweighted average also makes the system's uncertainty behavior predictable: since both signals are defined on the same scale (1 = most AI-typical, 0 = most human-typical), when the two signals disagree, the average lands near 0.5 — exactly the "uncertain" outcome that should occur when the evidence is genuinely mixed.
+`confidence_score = 0.3 × score_signal_A + 0.7 × score_signal_B` was chosen because Signal B (perplexity / language model confidence) proved more reliable than Signal A (structural features) at distinguishing human-written and AI-generated text in practice. Because I noticed my program wasn't being accurate with confidence score, due to signal B being better at detecting human and AI than A, I changed the formula to weigh more towards signal B score. When the two signals disagree, the weighted score follows Signal B more closely — so mixed evidence resolves toward whichever direction the semantic signal points, rather than always collapsing to the midpoint.
 
 **What a mid-range score means**
 
