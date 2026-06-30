@@ -9,7 +9,7 @@ A creator sends a `POST /submit` request containing their text. The endpoint fir
 - **Signal 1** computes a structural score from the raw text (type-token ratio and punctuation density).
 - **Signal 2** computes a semantic/statistical score from the raw text (perplexity / language model confidence).
 
-Both signal scores are passed into **confidence scoring**, which combines them into a single confidence value between 0 and 1. This combined score is passed to the **transparency label** component, which selects one of three label variants (high-confidence AI, high-confidence human, uncertain) and builds the plain-language text a reader will see.
+Both signal scores are passed into **confidence scoring**, which combines them into a single confidence value between 0 and 1. This combined score is passed to the **transparency label** component, which selects one of five label variants and builds the plain-language text a reader will see.
 
 The full decision record — including both signal scores, the combined confidence score, and the label text — is written to the **audit log**. Finally, the **response** is returned to the creator, containing the decision record, the confidence score, and the transparency label, along with a `content_id` they can use later if they want to appeal.
 
@@ -17,7 +17,7 @@ If a creator disputes the result, they call `POST /appeal` with their `content_i
 
 ---
 
-### Detection signals
+### Detection Signals
 
 #### Signal 1 (structural): Type-token ratio & punctuation density
 
@@ -75,22 +75,24 @@ A confidence score is not a measure of certainty that AI wrote the text — it's
 
 | Range | Label | What it represents |
 |---|---|---|
-| `confidence_score ≥ 0.7` | High-confidence AI | Both signals independently and strongly point toward AI-typical patterns |
-| `0.3 < confidence_score < 0.7` | Uncertain | Signals disagree with each other, or both are only mildly AI- or human-leaning |
-| `confidence_score ≤ 0.3` | High-confidence human | Both signals independently and strongly point toward human-typical patterns |
+| `confidence_score ≥ 0.8` | Clearly AI-generated | Both signals strongly point toward AI-typical patterns |
+| `0.65 ≤ confidence_score < 0.8` | Likely AI-generated | Evidence leans toward AI-generated, but not conclusively |
+| `0.45 < confidence_score < 0.65` | Uncertain | Signals disagree, or evidence is mixed |
+| `0.2 < confidence_score ≤ 0.45` | Likely human-written | Evidence leans toward human-written, but not conclusively |
+| `confidence_score ≤ 0.2` | Clearly human-written | Both signals strongly point toward human-typical patterns |
 
-The uncertain band intentionally spans 40% of the possible score range rather than a narrow window around 0.5. A narrow band would force borderline or contradictory cases into a false "high-confidence" label, which is exactly the failure mode the false positive scenario trace describes.
+The uncertain band spans the middle of the score range. Narrower bands at the extremes would force borderline cases into a false "clearly" label, which is exactly the failure mode the false positive scenario trace describes.
 
 ---
 
-### False positive scenario trace
+### False Positive Scenario Trace
 
 Consider a human technical writer who submits a clearly-written, plainly-worded report.
 
 - Signal 1 returns low TTR and low PD — they reuse domain terminology and use minimal punctuation variety.
 - Signal 2 returns low perplexity — their wording is highly predictable, technical writing by nature avoids surprising phrasing.
 
-Both signals agree and point toward AI, but for the wrong reason — neither captures that this is simply a professional human writing style. The confidence score lands high (toward the AI end), and the resulting label would read as high-confidence AI, even though the content is human-written.
+Both signals agree and point toward AI, but for the wrong reason — neither captures that this is simply a professional human writing style. The confidence score lands high (toward the AI end), and the resulting label would read as Clearly AI-generated or Likely AI-generated, even though the content is human-written.
 
 This is why the **appeal workflow** matters: the creator submits their reasoning (e.g., "I am a technical writer; this is my own work, plainly written"), the content status flips to `"under review"`, and the full audit trail — both signal scores and the appeal reasoning — is preserved for a human reviewer to make the final call. The system does not auto-correct; it surfaces the case for review.
 
@@ -109,7 +111,7 @@ This is why the **appeal workflow** matters: the creator submits their reasoning
 
 ---
 
-### API surface
+### API Surface
 
 **`POST /submit`**
 - Accepts: `{ text: string }`
@@ -124,15 +126,23 @@ This is why the **appeal workflow** matters: the creator submits their reasoning
 
 ---
 
-### Transparency label variants
+### Transparency Label Variants
 
-- **High-confidence AI**: `confidence_score ≥ 0.7`
-- **High-confidence human**: `confidence_score ≤ 0.3`
-- **Uncertain**: `0.3 < confidence_score < 0.7`
+| Range (`confidence_score = cs`) | Label |
+|---|---|
+| `cs ≥ 0.8` | Clearly AI-generated |
+| `0.65 ≤ cs < 0.8` | Likely AI-generated |
+| `0.45 < cs < 0.65` | Uncertain |
+| `0.2 < cs ≤ 0.45` | Likely human-written |
+| `cs ≤ 0.2` | Clearly human-written |
 
-- **High-confidence AI**: "Our system is [confidence_score * 100]% confident that this content was written by an AI."
-- **High-confidence human**: "Our system is [100 - (confidence_score * 100)]% confident that this content was written by a human."
+**Label text shown to readers**
+
+- **Clearly AI-generated**: "Our system is clearly confident that this content was written by an AI."
+- **Likely AI-generated**: "Our system is likely confident that this content was written by an AI."
 - **Uncertain**: "Our system is uncertain whether this content was written by an AI or a human."
+- **Likely human-written**: "Our system is likely confident that this content was written by a human."
+- **Clearly human-written**: "Our system is clearly confident that this content was written by a human."
 
 ---
 
@@ -203,10 +213,10 @@ Status update    Audit log
 - **M3 (submissions endpoint + signal 1)**: 
   - I will give the AI the following parts of the planning document:
     - Architecture Narrative
-    - Detection signals
-    - False positive scenario trace
+    - Detection Signals
+    - False Positive Scenario Trace
     - Anticipated Edge Cases
-    - API surface
+    - API Surface
     - Diagrams
   - I will ask the AI to generate the code for the submissions workflow and endpoint and signal 1.
   - I will verify the output by testing with a few inputs directly before wiring into the endpoint.
@@ -228,6 +238,6 @@ Status update    Audit log
     - Transparency label variants
     - Diagrams
   - I will ask the AI to generate the code for the appeal workflow and endpoint.
-  - I will verify the output by testing all three label variants are reachable and that an appeal updates status correctly.
+  - I will verify the output by testing all five label variants are reachable and that an appeal updates status correctly.
 
 ---
