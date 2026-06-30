@@ -7,6 +7,8 @@ def append_decision(record: dict) -> None:
     _log.append({
         **record,
         "record_type": "decision",
+        "attribution_result": record["transparency_label"],
+        "appeal_filed": False,
     })
 
 
@@ -27,9 +29,18 @@ def append_appeal(
         "timestamp": timestamp,
         "status": status,
         "transparency_label": transparency_label,
+        "attribution_result": transparency_label,
         "creator_reasoning": creator_reasoning,
+        "appeal_filed": True,
         "original_decision": dict(original_decision),
     })
+
+
+def mark_appeal_filed(content_id: str) -> None:
+    for entry in _log:
+        if entry.get("record_type") == "decision" and entry.get("content_id") == content_id:
+            entry["appeal_filed"] = True
+            return
 
 
 def get_log() -> list[dict]:

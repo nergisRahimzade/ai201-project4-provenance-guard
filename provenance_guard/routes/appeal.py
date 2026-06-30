@@ -2,7 +2,7 @@ import uuid
 
 from flask import Blueprint, jsonify, request
 
-from provenance_guard.audit_log import append_appeal, get_decision_by_content_id
+from provenance_guard.audit_log import append_appeal, get_decision_by_content_id, mark_appeal_filed
 from provenance_guard.classification import (
     CLASSIFIED_STATUS,
     UNDER_REVIEW_LABEL,
@@ -50,6 +50,7 @@ def appeal():
         creator_reasoning=creator_reasoning,
         original_decision=original_decision,
     )
+    mark_appeal_filed(content_id)
 
     return jsonify({
         "appeal_id": appeal_id,

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+from provenance_guard.extensions import limiter
 from provenance_guard.routes.appeal import appeal_bp
 from provenance_guard.routes.log import log_bp
 from provenance_guard.routes.submit import submit_bp
@@ -7,6 +8,7 @@ from provenance_guard.routes.submit import submit_bp
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    limiter.init_app(app)
     app.register_blueprint(submit_bp)
     app.register_blueprint(appeal_bp)
     app.register_blueprint(log_bp)

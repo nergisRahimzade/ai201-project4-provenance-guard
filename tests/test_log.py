@@ -34,12 +34,14 @@ def test_log_returns_structured_entries(client):
         assert entry["content_id"]
         assert entry["creator_id"]
         assert entry["timestamp"].endswith("Z")
+        assert entry["attribution_result"] == entry["transparency_label"]
         assert entry["transparency_label"] in ALL_TRANSPARENCY_LABELS
         assert isinstance(entry["score_signal_a"], float)
         assert isinstance(entry["score_signal_b"], float)
         assert isinstance(entry["confidence"], float)
         assert isinstance(entry["llm_score"], float)
         assert entry["status"] == "classified"
+        assert entry["appeal_filed"] is False
 
     assert entries[0]["creator_id"] == "creator-1"
     assert entries[1]["creator_id"] == "creator-2"

@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from provenance_guard.audit_log import append_decision
 from provenance_guard.content_store import register_content
+from provenance_guard.extensions import limiter
 from provenance_guard.classification import (
     CLASSIFIED_STATUS,
     compute_confidence,
@@ -40,6 +41,7 @@ def build_submission_response(
 
 
 @submit_bp.post("/submit")
+@limiter.limit("10 per minute;100 per day")
 def submit():
     payload = request.get_json(silent=True) or {}
     try:

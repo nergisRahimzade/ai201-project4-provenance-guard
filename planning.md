@@ -121,7 +121,12 @@ This is why the **appeal workflow** matters: the creator submits their reasoning
 - Returns: `{ appeal_id: string, status_update: string }`
 
 **`GET /log`**
-- Returns: structured list of audit log entries (decision records and appeals)
+- Returns: structured JSON list of audit log entries (decision records and appeals)
+- Each decision entry includes: `timestamp`, `content_id`, `attribution_result`, `confidence`, `score_signal_a`, `score_signal_b`, and `appeal_filed`
+- Each appeal entry includes: `timestamp`, `content_id`, `appeal_id`, `creator_reasoning`, and a snapshot of the `original_decision`
+
+**Rate limiting**
+- `POST /submit` is limited to 10 requests per minute and 100 requests per day (Flask-Limiter, in-memory storage)
 
 ---
 

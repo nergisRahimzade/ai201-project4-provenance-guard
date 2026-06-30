@@ -11,6 +11,7 @@ def client():
     clear_content_store()
     app = create_app()
     app.config["TESTING"] = True
+    app.config["RATELIMIT_ENABLED"] = False
     with app.test_client() as client:
         yield client
     clear_audit_log()

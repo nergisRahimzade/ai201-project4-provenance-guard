@@ -44,6 +44,7 @@ def test_appeal_updates_status_and_logs_entry(client):
     entries = get_entries()
     assert len(entries) == 2
     assert entries[0]["record_type"] == "decision"
+    assert entries[0]["appeal_filed"] is True
     assert entries[1]["record_type"] == "appeal"
     assert entries[1]["appeal_id"] == data["appeal_id"]
     assert entries[1]["content_id"] == content_id
